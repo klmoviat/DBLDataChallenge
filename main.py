@@ -20,3 +20,5 @@ print('boi')
 
 # print test
 print('test')
+
+print(':)')
