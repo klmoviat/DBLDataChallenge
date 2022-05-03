@@ -17,8 +17,4 @@ if __name__ == '__main__':
 #test if change is committed
 print('boi')
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
-
-# print test
-print('test')
-
-print(':)')
+print('frank is in')
