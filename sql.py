@@ -1,17 +1,12 @@
 import sqlite3
-import numpy as np
 import pandas as pd
-
 import json
 
-with open('airlines-1558611772040.json') as json_data:
-    d = json.load(json_data)
-    print(d)
+data = [json.loads(line) for line in open('airlines4.json', 'r')]
 
-#from pandas.io.json import json_normalize
-#json_normalize(json_data)
+df = pd.DataFrame(data)
+print(df.head())
+print(df.columns)
 
-#import json
-#tweets = []
-#for line in open('airlines-1558611772040.json', 'r'):
-#    tweets.append(json.loads(line))
+#conn = sqlite3.connect('databasetest.db')
+#cursor = conn.cursor()
