@@ -18,3 +18,5 @@ if __name__ == '__main__':
 print('boi')
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
 print('frank is in')
+
+print(":)")
