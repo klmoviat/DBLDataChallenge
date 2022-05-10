@@ -1,22 +1,17 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
+# This is a sample Python script
 # Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+from typing import Any
 
-#test if change is committed
-print('boi')
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
-print('frank is in')
+import pandas as pd
+import sqlite3
+#df=pd.read_json(r'C:\Users\20161854\Documents\GitHub\DBLDataChallenge\airlines-1558527599826.json',lines=True)
+#df.to_csv(r'C:\Users\20161854\Documents\GitHub\DBLDataChallenge\airlines6.csv')
 
-print(":)")
+conn=sqlite3.connect('DataChallenge.sqlite')
+cursor=conn.cursor()
+
+
+cursor.execute("DELETE FROM airlines6 WHERE C5 not like '%klm%'")
+cursor.execute("DELETE FROM airlines6 where C30 NOT LIKE '%en%' OR '%nl%'")
+
+conn.commit()
