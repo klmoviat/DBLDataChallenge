@@ -11,7 +11,7 @@ files = glob.glob("D:\data\*.json") # locatie alle json bestanden lokaal
 df = pd.DataFrame() #maak dataframe
 
 #loop over alle gevonden lokaties, maak van ieder bestand een df en cocat ze
-for count,ele in enumerate(files,len(files)):
+for count,ele in enumerate(files[0:7],len(files[0:7])):
     print(ele)
     dftemp=pd.read_json(ele,lines=True)
     print(dftemp.iloc[0,0])
@@ -29,7 +29,7 @@ df.iloc[:, 35]=df.iloc[:, 35].astype(str)
 df.iloc[:, 13]=df.iloc[:, 13].astype(str)
 df.iloc[:, 14]=df.iloc[:, 14].astype(str)
 df.iloc[:, 36]=df.iloc[:, 36].astype(str)
-df.iloc[:, 37]=df.iloc[:, 37].astype(str)
+#df.iloc[:, 37]=df.iloc[:, 37].astype(str)
 df.iloc[:, 11]=df.iloc[:, 11].astype(str)
 df.iloc[:, 16]=df.iloc[:, 16].astype(str)
 df.iloc[:, 0]=df.iloc[:, 0].astype(str)

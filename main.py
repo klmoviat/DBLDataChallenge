@@ -11,7 +11,7 @@ conn=sqlite3.connect('DataChallenge.sqlite')
 cursor=conn.cursor()
 
 
-cursor.execute("DELETE FROM airlines6 WHERE C5 not like '%klm%'")
-cursor.execute("DELETE FROM airlines6 where C30 NOT LIKE '%en%' OR '%nl%'")
-
+cursor.execute("DELETE FROM Full WHERE extended_tweet NOT LIKE '%KLM%' AND text NOT LIKE '%klm%' AND in_reply_to_screen_name NOT LIKE '%klm%' AND id NOT LIKE '%56377143%'")
+cursor.execute("DELETE FROM Full where lang NOT LIKE '%en%' AND lang NOT LIKE '%nl%'")
+#cursor.execute("DELETE FROM airlines6 where reply_count NOT LIKE '0'")
 conn.commit()
