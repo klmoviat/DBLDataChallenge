@@ -25,7 +25,7 @@ import csv, sqlite3
 #daar andere tabellen van?
 #
 
-
+#vul hier de lokatie van je files in: hij pakt alle json files in de map!
 files = glob.glob("D:\data\*.json")
 #cols maakt de kolommen aan die je wilt hebben, vul in wat je wilt i guess
 cols = ['created_at', 'id_str', 'text', 'truncated', 'in_reply_to_screen_name', 'quote_count', 'reply_count', 'retweet_count', 'favorite_count', 'favorited', 'retweeted','lang']
