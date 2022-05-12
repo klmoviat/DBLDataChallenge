@@ -10,6 +10,10 @@
 #gebruik bv de console om doc['entities']['user_mentions']
 #te extracten, of andere soortgelijke dingen
 #dan kan je ze later toevoegen aan de efficient loading ding
+
+#alle info die je kan extracten staat in doc: als je die expand
+#staan alle kolommen van de json erin, en kan je de nested dictionaries
+#ook expanden
 import pandas as pd
 import json
 data=[]
