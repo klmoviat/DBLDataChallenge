@@ -16,6 +16,7 @@ import csv, sqlite3
 #doc['entities']['user_mentions']
 #Hiermee krijg je bv: {'screen_name': 'British_Airways', 'name': 'British Airways', 'id': 18332190, 'id_str': '18332190', 'indices': [0, 16]}
 #weet niet hoe hij met meerdere mentions omgaat?
+#plus dit staat natuurlijk ook gwn in de text zelf
 
 #follower count extracten:
 #doc['user']['followers_count']
@@ -28,16 +29,26 @@ import csv, sqlite3
 #vul hier de lokatie van je files in: hij pakt alle json files in de map!
 files = glob.glob("D:\data\*.json")
 #cols maakt de kolommen aan die je wilt hebben, vul in wat je wilt i guess
-cols = ['created_at', 'id_str', 'text', 'truncated', 'in_reply_to_screen_name', 'quote_count', 'reply_count', 'retweet_count', 'favorite_count', 'favorited', 'retweeted','lang']
+cols = ['created_at', 'id_str', 'text',
+        'in_reply_to_screen_name','lang',
+        'user_mentions']
+user_cols=['id','screen_name', 'created_at','followers_count'
+           , 'friends_count', 'verified']
+
 #in data sla je alles op wat je uiteindelijk in je sqlite database yeet, kan je ook meer van maken
-data = []
+main = []
+user=[]
 #maak lege df aan, zal je ook meerdere moeten hebben als we meerdere databases willen maken
 df = pd.DataFrame()
 #loop_count print uit hoeveel json bestanden hij heeft gemaakt
 loop_count=0
 
 #We moeten nog uitzoeken hoeveel en welke files 1 maand zijn, kan je hieronder invullen
-one_month=files[0:30]
+time=input("Run over full database? y/n")
+if time=='n':
+    files=files[0:5]
+
+
 #pas 'files' aan naar one_month voor 1 maand tabel
 for count,ele in enumerate(files,len(files)):
     print(ele) #voor debugging: print de file waar hij mee bezig is
@@ -47,21 +58,50 @@ for count,ele in enumerate(files,len(files)):
             if not list(doc)[0] == 'delete': #soms in files staat een line die begint met delete, weet niet wat het doet
                                             #maar volgt niet standaard conventie en fucked alles op
                 if doc['lang'] == 'en' or doc['lang'] == 'nl': #arbitrary, maar exclude alles dat we niet kunnen lezen
+
+                    #MERGE EXTENDED TWEET EN TEXT ALS TRUNCATED=1
+                    if doc['truncated'] == True:
+                        doc['text'] = doc['extended_tweet']['full_text']
+                        doc['entities'] = doc['extended_tweet']['entities']
+
+                    #HIER KOLOMMEN SELECTEREN
+                    #CODE OM USER_MENTIONS TE EXTRACTEN
+                    mentions = ''
+                    for x in range(len(doc['entities']['user_mentions'])):
+                        temp = doc['entities']['user_mentions'][x]['screen_name']
+                        if not x == 0:
+                            mentions = mentions + ', ' + temp
+                        else:
+                            mentions = temp
+
+                    #CODE OM USER TABLE AAN TE MAKEN
+
+
+
+
+
                     #lst is nu een 1-d array die bestaat uit alle entries van 1 rij die we willen houden
-                    lst = [doc[cols[0]], doc[cols[1]], doc[cols[2]], doc[cols[3]], doc[cols[4]], doc[cols[5]], doc[cols[6]], doc[cols[7]], doc[cols[8]], doc[cols[9]], doc[cols[10]], doc[cols[11]]]
+                    main_lst = [doc[cols[0]], doc[cols[1]], doc[cols[2]], doc[cols[3]],doc[cols[4]], mentions]
+                    user_lst=[doc['user'][user_cols[0]], doc['user'][user_cols[1]], doc['user'][user_cols[2]], doc['user'][user_cols[3]], doc['user'][user_cols[4]], doc['user'][user_cols[5]]]
                     #vul deze rij aan de 2-d array data toe
-                    data.append(lst)
+                    main.append(main_lst)
+                    if not user:
+                        user.append(user_lst)
+                    else:
+                            user.append(user_lst)
             else:
-                data=data #niet per se nodig?
+                main=main #niet per se nodig?
     #df = pd.DataFrame(data=data, columns=cols)     oude junk, is langzamer
     #df = pd.concat([df, dftemp])                   idem
+    loop_count = loop_count + 1
     print('loop run')           #bijhouden hoeveel files je al hebt gehad
-    loop_count=loop_count+1
     print(loop_count)
-df = pd.DataFrame(data=data, columns=cols)      #hier pas maken we een df
+df = pd.DataFrame(data=main, columns=cols)#hier pas maken we een df
+df_user=pd.DataFrame(data=user, columns=user_cols)
 conn = sqlite3.connect("DataChallenge.sqlite")  #default sqlite3 shit
 cursor = conn.cursor()
 
 #maak er een sql ding van
 
-df.to_sql('Full', conn, if_exists='replace', index=False)       #creeer table in je datachallenge.sqlite bestand
+df.to_sql('main', conn, if_exists='replace', index=False)       #creeer table in je datachallenge.sqlite bestand
+df_user.to_sql('user', conn, if_exists='replace', index=False)
