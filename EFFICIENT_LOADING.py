@@ -29,9 +29,9 @@ import csv, sqlite3
 #vul hier de lokatie van je files in: hij pakt alle json files in de map!
 files = glob.glob("D:\data\*.json")
 #cols maakt de kolommen aan die je wilt hebben, vul in wat je wilt i guess
-cols = ['created_at', 'id_str', 'text',
-        'in_reply_to_screen_name','lang',
-        'user_mentions']
+cols = ['created_at', 'id_str', 'text', 'user_id',
+        'in_reply_to_screen_name','in_reply_to_status_id_str','lang',
+        'user_mentions','hashtags']
 user_cols=['id','screen_name', 'created_at','followers_count'
            , 'friends_count', 'verified']
 
@@ -73,15 +73,22 @@ for count,ele in enumerate(files,len(files)):
                             mentions = mentions + ', ' + temp
                         else:
                             mentions = temp
-
-                    #CODE OM USER TABLE AAN TE MAKEN
+                    #CODE OM HASHTAGS TE EXTRACTEN
+                    hashtags = ''
+                    for x in range(len(doc['entities']['hashtags'])):
+                        hash = doc['entities']['hashtags'][x]['text']
+                        if not x == 0:
+                            hashtags = hashtags + ', ' + hash
+                        else:
+                            hashtags = hash
+                    #HIER MEER CODE OM TE EDITEN
 
 
 
 
 
                     #lst is nu een 1-d array die bestaat uit alle entries van 1 rij die we willen houden
-                    main_lst = [doc[cols[0]], doc[cols[1]], doc[cols[2]], doc[cols[3]],doc[cols[4]], mentions]
+                    main_lst = [doc[cols[0]], doc[cols[1]], doc[cols[2]], doc['user']['id_str'], doc[cols[4]],doc[cols[5]],doc[cols[6]], mentions,hashtags]
                     user_lst=[doc['user'][user_cols[0]], doc['user'][user_cols[1]], doc['user'][user_cols[2]], doc['user'][user_cols[3]], doc['user'][user_cols[4]], doc['user'][user_cols[5]]]
                     #vul deze rij aan de 2-d array data toe
                     main.append(main_lst)

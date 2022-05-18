@@ -28,4 +28,3 @@ if doc['truncated'] == True:
 
 
 if doc['in_reply_to_user_id_str'] != NULL:
-
