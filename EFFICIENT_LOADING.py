@@ -27,17 +27,20 @@ import csv, sqlite3
 #
 
 #vul hier de lokatie van je files in: hij pakt alle json files in de map!
-files = glob.glob("D:\data\*.json")
+files = glob.glob("D:\\DBL Data Challenge\\Data\\data\\data\\*.json")
 #cols maakt de kolommen aan die je wilt hebben, vul in wat je wilt i guess
 cols = ['created_at', 'id_str', 'text', 'user_id',
         'in_reply_to_screen_name','in_reply_to_status_id_str','lang',
         'user_mentions','hashtags']
 user_cols=['id','screen_name', 'created_at','followers_count'
            , 'friends_count', 'verified']
+conversations_cols=['response_tweet', 'tweet', 'time1']
+#, 'time2', 'response_time'
 
 #in data sla je alles op wat je uiteindelijk in je sqlite database yeet, kan je ook meer van maken
 main = []
 user=[]
+conversations=[]
 #maak lege df aan, zal je ook meerdere moeten hebben als we meerdere databases willen maken
 df = pd.DataFrame()
 #loop_count print uit hoeveel json bestanden hij heeft gemaakt
@@ -90,12 +93,15 @@ for count,ele in enumerate(files,len(files)):
                     #lst is nu een 1-d array die bestaat uit alle entries van 1 rij die we willen houden
                     main_lst = [doc[cols[0]], doc[cols[1]], doc[cols[2]], doc['user']['id_str'], doc[cols[4]],doc[cols[5]],doc[cols[6]], mentions,hashtags]
                     user_lst=[doc['user'][user_cols[0]], doc['user'][user_cols[1]], doc['user'][user_cols[2]], doc['user'][user_cols[3]], doc['user'][user_cols[4]], doc['user'][user_cols[5]]]
+
+                    conversations_lst=[doc['in_reply_to_status_id_str'], doc['id_str'], doc['created_at']]
                     #vul deze rij aan de 2-d array data toe
                     main.append(main_lst)
                     if not user:
                         user.append(user_lst)
                     else:
                             user.append(user_lst)
+                    conversations.append(conversations_lst)
             else:
                 main=main #niet per se nodig?
     #df = pd.DataFrame(data=data, columns=cols)     oude junk, is langzamer
@@ -105,6 +111,7 @@ for count,ele in enumerate(files,len(files)):
     print(loop_count)
 df = pd.DataFrame(data=main, columns=cols)#hier pas maken we een df
 df_user=pd.DataFrame(data=user, columns=user_cols)
+df_conversations=pd.DataFrame(data=conversations, columns=conversations_cols)
 conn = sqlite3.connect("DataChallenge.sqlite")  #default sqlite3 shit
 cursor = conn.cursor()
 
@@ -112,3 +119,4 @@ cursor = conn.cursor()
 
 df.to_sql('main', conn, if_exists='replace', index=False)       #creeer table in je datachallenge.sqlite bestand
 df_user.to_sql('user', conn, if_exists='replace', index=False)
+df_conversations.to_sql('conversations', conn, if_exists='replace', index=False)
