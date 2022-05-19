@@ -39,7 +39,7 @@ loop_count=0
 #We moeten nog uitzoeken hoeveel en welke files 1 maand zijn, kan je hieronder invullen
 one_month=files[0:30]
 #pas 'files' aan naar one_month voor 1 maand tabel
-for count,ele in enumerate(files,len(files)):
+for count,ele in enumerate(files[0:5],len(files[0:5])):
     print(ele) #voor debugging: print de file waar hij mee bezig is
     with open(ele, encoding='latin-1') as f: #pakt file voor file
         for line in f:  #gaat line voor line de file langs
@@ -65,3 +65,5 @@ cursor = conn.cursor()
 #maak er een sql ding van
 
 df.to_sql('Full', conn, if_exists='replace', index=False)       #creeer table in je datachallenge.sqlite bestand
+
+print(df)
