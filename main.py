@@ -4,14 +4,19 @@ from typing import Any
 
 import pandas as pd
 import sqlite3
+from SQLITE_Queries import *
 #df=pd.read_json(r'C:\Users\20161854\Documents\GitHub\DBLDataChallenge\airlines-1558527599826.json',lines=True)
 #df.to_csv(r'C:\Users\20161854\Documents\GitHub\DBLDataChallenge\airlines6.csv')
+
+exec(open('EFFICIENT_LOADING.py').read())
 
 conn=sqlite3.connect('DataChallenge.sqlite')
 cursor=conn.cursor()
 
 
-cursor.execute("DELETE FROM Full WHERE extended_tweet NOT LIKE '%KLM%' AND text NOT LIKE '%klm%' AND in_reply_to_screen_name NOT LIKE '%klm%' AND id NOT LIKE '%56377143%'")
-cursor.execute("DELETE FROM Full where lang NOT LIKE '%en%' AND lang NOT LIKE '%nl%'")
-#cursor.execute("DELETE FROM airlines6 where reply_count NOT LIKE '0'")
+#maak queries in SQLITE_Queries.py met variable, zodat dit niet vol raakt
+cursor.execute(QUERY_DUP_USER)
+
+#cursor.execute("DELETE FROM Full where lang NOT LIKE '%en%' AND lang NOT LIKE '%nl%'")
+
 conn.commit()
