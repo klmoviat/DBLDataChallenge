@@ -120,3 +120,5 @@ cursor = conn.cursor()
 df.to_sql('main', conn, if_exists='replace', index=False)       #creeer table in je datachallenge.sqlite bestand
 df_user.to_sql('user', conn, if_exists='replace', index=False)
 df_conversations.to_sql('conversations', conn, if_exists='replace', index=False)
+
+print(df)
