@@ -3,7 +3,6 @@ import glob
 import numpy as np
 import pandas as pd
 import csv, sqlite3
-from datetime import datetime
 
 #AANGEPASTE LOADING: VEEEEEEL SNELLER
 #voeg de kolommen toe aan cols hieronder die je wilt houden
@@ -28,7 +27,7 @@ from datetime import datetime
 #
 
 #vul hier de lokatie van je files in: hij pakt alle json files in de map!
-files = glob.glob("D:\\bad data\*.json")
+files = glob.glob("D:\\DBL Data Challenge\\Data\\data\\data\\*.json")
 #cols maakt de kolommen aan die je wilt hebben, vul in wat je wilt i guess
 cols = ['created_at', 'id_str', 'text', 'user_id',
         'in_reply_to_user_id_str','in_reply_to_status_id_str','lang',
