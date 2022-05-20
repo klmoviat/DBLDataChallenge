@@ -19,18 +19,22 @@ data=[]
 stop_line=14343    #als je een specifieke line hebt die je interessant lijkt om te zien (bv een hele lange, veel nested shit)
 count=0         #count hoeveel loops, helpt met hierboven beschreven
 cols = ['id_str', 'truncated']
-with open('D:\\data\\airlines-1558527599826.json', encoding='latin-1') as f:
+with open('D:\\data\\airlines-1558611772040.json', encoding='latin-1') as f:
     for line in f:
         if count<stop_line:
-
-            doc = json.loads(line)
+            try:
+                doc = json.loads(line)
+            except ValueError as e:
+                pass
+            print(count)
             if not list(doc)[0] == 'delete':
-                lst = [doc['id_str'], doc['truncated']]
-                if doc['truncated'] == True:
-                    doc['text'] = doc['extended_tweet']['full_text']
-                    doc['entities'] = doc['extended_tweet']['entities']
-                data.append(lst)
-                count=count+1
+                if not 'retweeted_status' in doc:
+                    lst = [doc['id_str'], doc['truncated']]
+                    if doc['truncated'] == True:
+                        doc['text'] = doc['extended_tweet']['full_text']
+                        doc['entities'] = doc['extended_tweet']['entities']
+                    data.append(lst)
+            count=count+1
         else:
             data=data
 dftemp = pd.DataFrame(data=data, columns=cols)
