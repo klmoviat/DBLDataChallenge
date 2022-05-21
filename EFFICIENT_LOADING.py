@@ -3,6 +3,7 @@ import glob
 import numpy as np
 import pandas as pd
 import csv, sqlite3
+from datetime import datetime
 
 #AANGEPASTE LOADING: VEEEEEEL SNELLER
 #voeg de kolommen toe aan cols hieronder die je wilt houden
@@ -27,11 +28,11 @@ import csv, sqlite3
 #
 
 #vul hier de lokatie van je files in: hij pakt alle json files in de map!
-files = glob.glob("D:\\DBL Data Challenge\\Data\\data\\data\\*.json")
+files = glob.glob("D:\\data\\*.json")
 #cols maakt de kolommen aan die je wilt hebben, vul in wat je wilt i guess
 cols = ['created_at', 'id_str', 'text', 'user_id',
         'in_reply_to_user_id_str','in_reply_to_status_id_str','lang',
-        'user_mentions','hashtags']
+        'user_mentions','hashtags','tweet_url']
 user_cols=['id','screen_name', 'created_at','followers_count'
            , 'friends_count', 'verified']
 conversations_cols=['response_tweet', 'tweet', 'time1']
@@ -97,9 +98,9 @@ for count,ele in enumerate(files,len(files)):
 
 
 
-
+                    tweet_url='twitter.com/'+doc['user']['screen_name']+'/status/'+doc['id_str']
                     #lst is nu een 1-d array die bestaat uit alle entries van 1 rij die we willen houden
-                    main_lst = [doc[cols[0]], doc[cols[1]], doc[cols[2]], doc['user']['id_str'], doc[cols[4]],doc[cols[5]],doc[cols[6]], mentions,hashtags]
+                    main_lst = [doc[cols[0]], doc[cols[1]], doc[cols[2]], doc['user']['id_str'], doc[cols[4]],doc[cols[5]],doc[cols[6]], mentions,hashtags,tweet_url]
                     user_lst=[doc['user'][user_cols[0]], doc['user'][user_cols[1]], doc['user'][user_cols[2]], doc['user'][user_cols[3]], doc['user'][user_cols[4]], doc['user'][user_cols[5]]]
                     #if doc['in_reply_to_status_id_str'] is not None:
                         #conversations_lst=[doc['in_reply_to_status_id_str'], doc['id_str'], doc['created_at']]

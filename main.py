@@ -21,6 +21,8 @@ cursor.execute(QUERY_DUP_USER)
 #replies=cursor.execute(QUERY_REPLY)
 
 cursor.executescript(QUERY_REPLY_TABLES)
+cursor.executescript(QUERY_HEAD_TAIL)
+cursor.executescript(QUERY_HEAD_TAIL_TEXT)
 
 #cursor.execute("DELETE FROM Full where lang NOT LIKE '%en%' AND lang NOT LIKE '%nl%'")
 
