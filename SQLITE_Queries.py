@@ -93,6 +93,26 @@ QUERY_HEAD_TAIL = """create table temp_head_tail as
 
 #add the text to the table with heads and tails of conversations
 QUERY_HEAD_TAIL_TEXT = """
+
+    create table 'temp_text' as
+    select tail.tail_text,
+           head.head_text
+    from(
+        select
+        main.text as tail_text,
+        row_number() over (order by head_tail.tail_id) as row_num
+        from main
+        inner join head_tail on head_tail.tail_id=main.id_str
+        ) tail
+    inner join(
+        select
+        main.text as head_text,
+        row_number() over (order by head_tail.tail_id) as row_num
+        from main
+        inner join head_tail on head_tail.temp_head=main.id_str
+        ) head on head.row_num=tail.row_num
+    order by head.row_num;
+    
     create table 'temp_head_tail' as
     select
         head_tail.temp_head,
