@@ -49,7 +49,7 @@ df = pd.DataFrame()
 loop_count=0
 
 #We moeten nog uitzoeken hoeveel en welke files 1 maand zijn, kan je hieronder invullen
-time=input("Run over full database? y/n")
+time=input("Run over full database? y/n ")
 if time=='n':
     files=files[0:5]
 

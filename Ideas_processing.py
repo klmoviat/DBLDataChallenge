@@ -66,3 +66,33 @@ head_id=temp_head
 #we zouden evt een query kunnen doen die alle tweets droppen die niet van
 #KLM zijn of waar KLM niet op gereplied wordt. Je mist dan alleen wel structuur:
 #user1<KLM<user2<KLM en uberhaupt user<KLM
+
+
+#CHECKEN OF EEN CONVERSATIE MET KLM IS OF TUSSEN USERS ZELF IS NOG LASTIG
+#DE QUERY HIERONDER CHECKT BV OF DE LAATSTE TWEET IN DE CHAIN (TAIL_ID) VAN KLM IS
+SELECT head_tail.*
+    FROM head_tail
+    inner join main on head_tail.tail_id = main.id_str
+WHERE user_id = '56377143';
+
+#EIGENLIJK HIERBIJ MOET NOG KOMEN TWEETS WAARBIJ DE TAIL IN RESPONSE TO KLM IS
+SELECT head_tail.*
+    FROM head_tail
+    inner join main on head_tail.tail_id = main.id_str
+WHERE user_id = '56377143' OR main.in_reply_to_user_id_str = '56377143';
+#PAKT OOK DE TWEETS WAARBIJ KLM NIET DE LAATSTE REPLY HAD, dit zou je evt kunnen storen in een tabel head_tail_klm
+#PROBLEEM: WAT GEBEURT ER MET USER<KLM<USER2? !!!!!!!!!
+#PROBLEEM: HOE HOU JE ALLEEN DE EERSTE EN LAATSTE TWEET OVER VAN JE CONVERSATION??
+SELECT head_tail.temp_head,
+       head_tail.head_text,
+       head_tail.tail_id,
+       head_tail.tail_text,
+       max(depth) as total_depth
+from head_tail
+where depth >=3
+group by tail_id
+order by total_depth desc;
+#PROBLEEM: DIT PAKT DE EERSTE EN LAATSTE TWEET, MAAR NIET DE EERSTE EN LAATSTE TWEET VAN DE USER !!!
+#PROBLEEM: ALS IEMAND ANTWOORD OP ZICHZELF CREEERT DAT EEN SOORT PARALLELE CONVO, DIE OOK EEN APARTE TAIL VORMT,
+#ZEKER ALS ER NIET GEANTWOORD WORDT OP 1 OF MEERDERE VAN DE ANTWOORDEN OP ZICHZELF. ZO LOOP JE HET RISICO DEZELFDE
+#CONVO MEERDERE MALEN UIT TE VOEREN?

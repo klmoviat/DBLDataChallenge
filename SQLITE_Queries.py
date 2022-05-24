@@ -12,7 +12,7 @@ SingaporeAir = '253340062'
 Qantas = '218730857'
 EtihadAirways = '45621423'
 VirginAtlantic = '20626359'
-
+comp = ''
 
 # delete duplicates in main table. NOTE: these duplicates are due to
 # the last x entries in a file also being the first x in the next file
@@ -29,6 +29,8 @@ DROP TABLE IF EXISTS `temp`;
 DROP TABLE IF EXISTS `replies`;
 DROP TABLE IF EXISTS `head_tail`;
 DROP TABLE IF EXISTS `temp_head_tail`;
+DROP TABLE IF EXISTS `temp_text`;
+DROP TABLE IF EXISTS `A`;
 CREATE TABLE 'temp_replies' AS/*create temp table with tweets, in reply to en timestamp van tweet*/
     SELECT
         id_str,
@@ -68,6 +70,7 @@ DROP TABLE temp;
 
 # add table with the id's of the tails of the conversations and each level above it untill the head
 # and the depth of the conversations
+#combine with head_tail_text to get the text as well
 QUERY_HEAD_TAIL = """
     create table temp_head_tail as /*create temp tabel met de staart van convo*/
         select
@@ -94,6 +97,91 @@ QUERY_HEAD_TAIL = """
     DROP TABLE temp_head_tail   /*drop de temp tables weer*/
     ;"""
 
+#QUERY WAARBIJ DE TAIL NOOIT COMPANY IS
+QUERY_part_1 = """
+    create table temp_head_tail as /*create temp tabel met de staart van convo*/
+        select
+            id_str as tail_id
+        from replies
+        where id_str NOT IN  (select in_reply_to_status_id_str from replies);
+    
+    create table 'A' as select temp_head_tail.tail_id, replies.in_reply_to_status_id_str, user_id /*CREATE TABLE*/
+        from temp_head_tail             /*HIERIN STAAN DE CURRENT TAIL, HETGEEN WAAR HET OP REPLIED EN USERID VAN TAIL*/
+        inner join replies on replies.id_str=temp_head_tail.tail_id
+        inner join main on main.id_str = replies.id_str;
+"""
+    
+QUERY_part_2 = "UPDATE A set tail_id = A.in_reply_to_status_id_str where user_id = ?;"
+
+QUERY_part_3 = "drop table 'temp_head_tail';    /*MAAK TEMP_HEAD_TAIL OPNIEUW*/"
+
+QUERY_part_4 = "create table 'temp_head_tail' as select tail_id as tail_id from A inner join main on A.tail_id = main.id_str where main.in_reply_to_user_id_str = ?;"
+
+#Volledige conversations inladen met alle stappen
+QUERY_part_5 = """
+    drop table A;
+    CREATE TABLE head_tail AS               /*veel te kutte code om de tails van convos te laden*/
+        WITH RECURSIVE cte_head AS (        /*, iedere laag boven de tail en de depth. kan uitleggen als je wilt*/
+            select replies.in_reply_to_status_id_str as temp_head,
+                   temp_head_tail.tail_id, 1 as depth
+            from replies
+            inner join temp_head_tail on temp_head_tail.tail_id = replies.id_str
+    
+            UNION ALL
+    
+            select replies.in_reply_to_status_id_str as temp_head,
+                   cte_head.tail_id, depth+1
+            FROM replies
+            JOIN cte_head ON cte_head.temp_head = replies.id_str
+        )
+        SELECT * FROM cte_head  /*selecteer de zojuist gemaakte query voor de table*/
+    order by tail_id;           /*order hem bij tail_id voor consistency die later nodig is*/
+    DROP TABLE temp_head_tail   /*drop de temp tables weer*/
+    ;
+    
+
+"""
+#Delete all heads that are the company itself, so the heads start with 1st user tweet
+QUERY_part_7 = """delete from head_tail where head_tail.temp_head in
+    (
+        select q.temp_head
+            from (
+            select h.temp_head, max(h.depth), h.tail_id
+            from head_tail h
+            group by h.tail_id
+            INTERSECT SELECT
+            h.temp_head, depth, h.tail_id
+            from head_tail h
+            inner join main on main.id_str = h.temp_head
+            where main.user_id = ?
+            ) q
+        );"""
+
+# creating a table head_tail with the end head and tail from convo, with both same user and must be conversation
+QUERY_part_8 = """
+    CREATE TABLE 'temp' as 
+    SELECT head_tail.temp_head as head, head_tail.tail_id, max(head_tail.depth) as depth
+    FROM head_tail
+    GROUP BY head_tail.tail_id;
+    
+    DELETE FROM temp where depth < 2;
+    
+    DROP TABLE head_tail;
+    
+    CREATE TABLE 'head_tail' as
+        select * from temp A where (
+            select main.user_id
+            from temp A2
+            inner join main on main.id_str = a.head
+                                              ) = (
+                                                  select main.user_id
+                                                    from temp A2
+                                                    inner join main on main.id_str = a.tail_id
+    );          
+    DROP TABLE temp;
+    
+"""
+
 # add the text to the table with heads and tails of conversations
 QUERY_HEAD_TAIL_TEXT = """
     create table 'temp_text' as /*kutcode om de text van de heads en tails van head_tail te laden*/
@@ -111,19 +199,19 @@ QUERY_HEAD_TAIL_TEXT = """
         main.text as head_text,
         row_number() over (order by head_tail.tail_id) as row_num
         from main
-        inner join head_tail on head_tail.temp_head=main.id_str
+        inner join head_tail on head_tail.head=main.id_str
         ) head on head.row_num=tail.row_num
     order by head.row_num;
-    
+
     create table 'temp_head_tail' as /*maak een tijdelijke tabel aan waarin head_tailen*/
     select                           /*de tabel hierboven gecombineerd worden*/
-        head_tail.temp_head,
+        head_tail.head,
         temp_text.head_text,
         head_tail.tail_id,
         temp_text.tail_text,
         head_tail.depth
     from (  
-        select head_tail.temp_head, head_tail.tail_id, head_tail.depth, row_number() over (order by (select null))
+        select head_tail.head, head_tail.tail_id, head_tail.depth, row_number() over (order by tail_id, head)
          as row_num from head_tail)head_tail
         inner join (
             select head_text, tail_text, row_number() over (order by (select null)) as row_num from temp_text)temp_text
