@@ -71,10 +71,12 @@ while 1:
         TAIL = cursor.execute("SELECT tail_text from " + table).fetchall()
         tail = [i[0] for i in TAIL]
         all_scores = []
-        for x in head:
-            score = function(head[x], tail[x])   #pass iedere head en tail aan eval functie?
-            all_scores = all_scores.append(score)   #maak een lijst met alle scores?
-        print(np.average(all_scores))       #print average?
+        for x in range(len(head)):
+            #score = function(head[x], tail[x])   #pass iedere head en tail aan eval functie?
+            #all_scores = all_scores.append(score)   #maak een lijst met alle scores?
+            print(head[x])
+            print(tail[x])
+        #print(np.average(all_scores))       #print average?
     if toggle == 'q':
         print("(° ͜ʖ͡°)╭∩╮")
         break
