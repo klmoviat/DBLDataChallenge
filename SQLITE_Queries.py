@@ -26,9 +26,11 @@ QUERY_DUP_USER = "DELETE FROM user where rowid not in (select  min(rowid) from u
 QUERY_REPLY_TABLES = """
 DROP TABLE IF EXISTS `temp_replies`; /*drop old tables*/
 DROP TABLE IF EXISTS `temp`;
+DROP TABLE IF EXISTS `temp1`;
 DROP TABLE IF EXISTS `replies`;
 DROP TABLE IF EXISTS `head_tail`;
 DROP TABLE IF EXISTS `temp_head_tail`;
+DROP TABLE IF EXISTS `head_tail`;
 DROP TABLE IF EXISTS `temp_text`;
 DROP TABLE IF EXISTS `A`;
 CREATE TABLE 'temp_replies' AS/*create temp table with tweets, in reply to en timestamp van tweet*/
@@ -99,6 +101,14 @@ QUERY_HEAD_TAIL = """
 
 #QUERY WAARBIJ DE TAIL NOOIT COMPANY IS
 QUERY_part_1 = """
+DROP TABLE IF EXISTS `temp_replies`; /*drop old tables*/
+DROP TABLE IF EXISTS `temp`;
+DROP TABLE IF EXISTS `temp1`;
+DROP TABLE IF EXISTS `head_tail`;
+DROP TABLE IF EXISTS `temp_head_tail`;
+DROP TABLE IF EXISTS `head_tail`;
+DROP TABLE IF EXISTS `temp_text`;
+DROP TABLE IF EXISTS `A`;
     create table temp_head_tail as /*create temp tabel met de staart van convo*/
         select
             id_str as tail_id
@@ -141,7 +151,8 @@ QUERY_part_5 = """
     
 
 """
-#Delete all heads that are the company itself, so the heads start with 1st user tweet
+
+# Delete all heads that are the company itself, so the heads start with 1st user tweet
 QUERY_part_7 = """delete from head_tail where head_tail.temp_head in
     (
         select q.temp_head
@@ -159,11 +170,16 @@ QUERY_part_7 = """delete from head_tail where head_tail.temp_head in
 
 # creating a table head_tail with the end head and tail from convo, with both same user and must be conversation
 QUERY_part_8 = """
-    CREATE TABLE 'temp' as 
+    CREATE TABLE 'temp1' as 
     SELECT head_tail.temp_head as head, head_tail.tail_id, max(head_tail.depth) as depth
     FROM head_tail
     GROUP BY head_tail.tail_id;
     
+    CREATE TABLE 'temp' as 
+    SELECT temp1.head, temp1.tail_id, max(temp1.depth) as depth
+    FROM temp1
+    GROUP BY temp1.head;
+    DROP TABLE IF EXISTS `temp1`;
     DELETE FROM temp where depth < 2;
     
     DROP TABLE head_tail;
@@ -209,7 +225,8 @@ QUERY_HEAD_TAIL_TEXT = """
         temp_text.head_text,
         head_tail.tail_id,
         temp_text.tail_text,
-        head_tail.depth
+        head_tail.depth,
+        row_number() over (order by(select NULL)) as CONV_ID
     from (  
         select head_tail.head, head_tail.tail_id, head_tail.depth, row_number() over (order by tail_id, head)
          as row_num from head_tail)head_tail

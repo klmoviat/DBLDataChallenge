@@ -16,7 +16,6 @@ MODEL = f"cardiffnlp/twitter-roberta-base-sentiment-latest"
 tokenizer = AutoTokenizer.from_pretrained(MODEL)
 config = AutoConfig.from_pretrained(MODEL)
 model = AutoModelForSequenceClassification.from_pretrained(MODEL)
-
 # analyse 1st Tweet
 text = "It was absolutely fucking terrible trash, would not recommend. :("
 text = preprocess(text)
