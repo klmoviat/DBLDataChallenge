@@ -1,3 +1,5 @@
+
+
 # place to store known id's of users
 KLM = '56377143'
 AirFrance = '106062176'
@@ -238,3 +240,5 @@ QUERY_HEAD_TAIL_TEXT = """
     drop table temp_text;
     ALTER TABLE temp_head_tail RENAME TO head_tail /*rename temp tabel naar de hoofd tabel*/
     ;"""
+
+
