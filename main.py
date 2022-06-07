@@ -1,4 +1,3 @@
-from typing import Any
 import sqlite3
 from SQLITE_Queries import *
 from func_sent import *
@@ -7,7 +6,7 @@ from func_sent import *
 # https://tuenl-my.sharepoint.com/:f:/g/personal/f_w_overbeeke_student_tue_nl/EpB5TC5jDjpImyD3pco6UeoBbUvfWgpszLe2qjdO7_bwrA?e=XE6cQC
 # link to folder containing the database in several ways
 
-#initializing variables
+# initializing variables
 comparison = []
 while 1:
     toggle = input('Do you want to: \n'
@@ -48,8 +47,8 @@ while 1:
     toggle = input("\nChoose one of the following actions:\n"
                    " - Type 'a' to add company table\n"
                    " - Type 'd' to delete\n"
-                   " - Type 'e' to evaluate a table\n"
-                   " - Type 'q' to quit: \n")
+                   " - Type 'e' to run sentiment analysis on a table\n"
+                   " - Type 'q' to quit \n")
     if toggle == 'a':
         comp = input("Type the screenname of the company:\n")
         if comp in dir():
@@ -75,18 +74,28 @@ while 1:
             cursor.execute("DROP TABLE " + table + ";")
     elif toggle == 'e':
         table = input("Name of the company you want to evaluate:\n")
-        HEAD = cursor.execute("SELECT head_text from " + table).fetchall()
+        HEAD = cursor.execute("SELECT head_text, CONV_ID from " + table +
+                              " inner join main on head = id_str where lang = 'en'").fetchall()
         head = [i[0] for i in HEAD]
-        TAIL = cursor.execute("SELECT tail_text from " + table).fetchall()
+        conv_id = [i[1] for i in HEAD]
+        TAIL = cursor.execute("SELECT tail_text from " + table +
+                              " inner join main on head = id_str where lang = 'en'").fetchall()
         tail = [i[0] for i in TAIL]
-        result = sentiment_compare(head, tail)
-        comparison = np.asarray(result)
-        mean_change = np.mean(comparison[:, 2]) #mean verandering, maar met absolute termen (1=neg,2=neu,3=pos)
-        mean_first = np.mean(comparison[:, 0])
-        mean_last = np.mean(comparison[:, 1])
-        print("Average first tweet: {} \n".format(mean_first))
-        print("Average last tweet: {} \n".format(mean_last))
-        print("Average change: {}".format(mean_change))
+        HEAD_NL = cursor.execute("SELECT head_text, CONV_ID from " + table +
+                                 " inner join main on head = id_str where lang = 'nl'").fetchall()
+        head_nl = [i[0] for i in HEAD_NL]
+        conv_id_nl = [i[1] for i in HEAD_NL]
+        TAIL_NL = cursor.execute("SELECT tail_text from " + table +
+                                 " inner join main on head = id_str where lang = 'nl'").fetchall()
+        tail_nl = [i[0] for i in TAIL_NL]
+        result = sentiment_compare(head, tail, conv_id) + sentiment_compare_nl(head_nl, tail_nl, conv_id_nl)
+        # comparison = np.asarray(result)
+        # mean_change = np.mean(comparison[:, 2]) #mean verandering, maar met absolute termen (1=neg,2=neu,3=pos)
+        # mean_first = np.mean(comparison[:, 0])
+        # mean_last = np.mean(comparison[:, 1])
+        # print("Average first tweet: {} \n".format(mean_first))
+        # print("Average last tweet: {} \n".format(mean_last))
+        # print("Average change: {}".format(mean_change))
         cursor.execute("ALTER TABLE " + table + " add head_sentiment")
         cursor.execute("ALTER TABLE  " + table + "  add tail_sentiment")
         cursor.execute("ALTER TABLE  " + table + "  add delta_sentiment")
