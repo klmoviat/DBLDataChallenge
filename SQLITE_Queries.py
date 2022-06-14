@@ -1,20 +1,44 @@
+dict_comp = [('KLM', '56377143'),
+('AirFrance', '106062176'),
+('British_Airways', '18332190'),
+('AmericanAir', '22536055'),
+('Lufthansa', '124476322'),
+('AirBerlin', '26223583'),
+('AirBerlin_assist', '2182373406'),
+('easyJet', '38676903'),
+('RyanAir', '1542862735'),
+('SingaporeAir', '253340062'),
+('Qantas', '218730857'),
+('EtihadAirways', '45621423'),
+('VirginAtlantic', '20626359')]
 
-
-# place to store known id's of users
-KLM = '56377143'
-AirFrance = '106062176'
-British_Airways = '18332190'
-AmericanAir = '22536055'
-Lufthansa = '124476322'
-AirBerlin = '26223583'
-AirBerlin_assist = '2182373406'
-easyJet = '38676903'
-RyanAir = '1542862735'
-SingaporeAir = '253340062'
-Qantas = '218730857'
-EtihadAirways = '45621423'
-VirginAtlantic = '20626359'
+Jan = '01'
+Feb = '02'
+Mar = '03'
+Apr = '04'
+May = '05'
+Jun = '06'
+Jul = '07'
+aug = '08'
+Sep = '09'
+Oct = '10'
+Nov = '11'
+Dec = '12'
 comp = ''
+
+
+def add_company(company, conn, cursor):
+    comp_id = [i[1] for i in dict_comp if i[0] == company][0]
+    cursor.executescript(QUERY_part_1)
+    cursor.execute(QUERY_part_2, (comp_id,))
+    cursor.execute(QUERY_part_3)
+    cursor.execute(QUERY_part_4, (comp_id,))
+    cursor.executescript(QUERY_part_5)
+    cursor.execute(QUERY_part_7, (comp_id,))
+    cursor.executescript(QUERY_part_8)
+    cursor.executescript(QUERY_HEAD_TAIL_TEXT)
+    cursor.execute("ALTER TABLE head_tail RENAME TO " + company + ";")
+    conn.commit()
 
 # delete duplicates in main table. NOTE: these duplicates are due to
 # the last x entries in a file also being the first x in the next file
@@ -240,5 +264,16 @@ QUERY_HEAD_TAIL_TEXT = """
     drop table temp_text;
     ALTER TABLE temp_head_tail RENAME TO head_tail /*rename temp tabel naar de hoofd tabel*/
     ;"""
+
+
+#drop tables queries
+QUERY_DROP = """
+    drop table if exists KLM;
+    drop table if exists British_Airways;
+    drop table if exists Lufthansa;
+    drop table if exists RyanAir;
+    drop table if exists head_tail;
+    drop table if exists temp_head_tail;
+"""
 
 
