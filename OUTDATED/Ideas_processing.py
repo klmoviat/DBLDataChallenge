@@ -96,3 +96,122 @@ order by total_depth desc;
 #PROBLEEM: ALS IEMAND ANTWOORD OP ZICHZELF CREEERT DAT EEN SOORT PARALLELE CONVO, DIE OOK EEN APARTE TAIL VORMT,
 #ZEKER ALS ER NIET GEANTWOORD WORDT OP 1 OF MEERDERE VAN DE ANTWOORDEN OP ZICHZELF. ZO LOOP JE HET RISICO DEZELFDE
 #CONVO MEERDERE MALEN UIT TE VOEREN?
+
+
+if 1:
+    df1 = pd.read_sql("select created_at, sentiment from main where user_mentions like '%KLM%' "
+                      "AND sentiment is not NULL "
+                      "union select main.created_at, head_sentiment from KLM inner join main on id_str = head", conn)
+    df1['created_at'] = pd.to_datetime(df1['created_at'])
+    df1 = df1.rename(columns={"created_at": "Date"})
+
+    df2 = pd.read_sql("select created_at, sentiment from main where user_mentions like '%British_Airways%' "
+                      "AND sentiment is not NULL "
+                      "union select main.created_at, head_sentiment from main.British_Airways"
+                      " inner join main on id_str = head", conn)
+    df2['created_at'] = pd.to_datetime(df2['created_at'])
+    df2 = df2.rename(columns={"created_at": "Date"})
+
+    df3 = pd.read_sql("select created_at, sentiment from main where user_mentions like '%RyanAir%' "
+                      "AND sentiment is not NULL "
+                      "union select main.created_at, head_sentiment from RyanAir inner join main on id_str = head",
+                      conn)
+    df3['created_at'] = pd.to_datetime(df3['created_at'])
+    df3 = df3.rename(columns={"created_at": "Date"})
+
+    df4 = pd.read_sql("select created_at, sentiment from main where user_mentions like '%Lufthansa%' "
+                      "AND sentiment is not NULL "
+                      "union select main.created_at, head_sentiment from main.Lufthansa"
+                      " inner join main on id_str = head", conn)
+    df4['created_at'] = pd.to_datetime(df4['created_at'])
+    df4 = df4.rename(columns={"created_at": "Date"})
+
+    fig, ax1 = plt.subplots(figsize=(60, 10))
+    ax1.set_xlabel('Date')
+    ax1.set_ylabel('Sentiment (0 is negative, 1 is positive)', fontsize=20)
+
+    df1.groupby([df1['Date'].dt.date])['sentiment'].mean().plot(kind='line', color='darkorange')
+    df2.groupby([df2['Date'].dt.date])['sentiment'].mean().plot(kind='line', color='tab:blue')
+    df3.groupby([df3['Date'].dt.date])['sentiment'].mean().plot(kind='line', color='gold')
+    df4.groupby([df4['Date'].dt.date])['sentiment'].mean().plot(kind='line', color='darkgreen')
+    plt.xticks(rotation=45)
+    ax1.axhline(y=df1['sentiment'].mean(), linestyle='dashed', color='darkorange')
+    ax1.axhline(y=df2['sentiment'].mean(), linestyle='dashed', color='tab:blue')
+    ax1.axhline(y=df3['sentiment'].mean(), linestyle='dashed', color='gold')
+    ax1.axhline(y=df4['sentiment'].mean(), linestyle='dashed', color='darkgreen')
+    ax2 = ax1.twinx()
+    ax1.set_ylim([0.2, 0.8])
+    ax2.set_ylim([0, 5500])
+    ax2.set_ylabel('Number of tweets in the week', color='tab:red', fontsize=20)
+    df1.groupby([df1['Date'].dt.date])['sentiment'].count().plot.area(alpha=0.2, color='darkorange')
+    df2.groupby([df2['Date'].dt.date])['sentiment'].count().plot.area(alpha=0.2, color='tab:blue')
+    df3.groupby([df3['Date'].dt.date])['sentiment'].count().plot.area(alpha=0.2, color='gold')
+    df4.groupby([df4['Date'].dt.date])['sentiment'].count().plot.area(alpha=0.2, color='darkgreen')
+    ax1.tick_params(labelsize=16)
+    ax2.tick_params(axis='y', labelcolor='tab:red', labelsize=16)
+    ax2.xaxis.set_major_formatter(mdates.DateFormatter("%b-'%y"))
+    plt.title("Average sentiment and number of tweets per day (NOTE: follow-up tweets not included)"
+              , fontsize=20)
+    ax1.legend()
+    plt.tight_layout()
+    plt.savefig("Plots\\sentiment_year_KLM.jpg", format='jpg')
+if 1:
+
+    fig, ax1 = plt.subplots(figsize=(20, 10), dpi=1200)
+    ax1.set_ylabel('Sentiment (0 is negative, 1 is positive)', fontsize=20)
+    df2.groupby([df2['Date'].dt.date])['sentiment'].mean().plot(kind='line')
+    plt.xticks(rotation=45)
+    ax1.axhline(y=df2['sentiment'].mean(), linestyle='dashed', color='tab:blue')
+    ax2 = ax1.twinx()
+    ax1.set_ylim([0.2, 0.8])
+    ax2.set_ylim([0, 5500])
+    color = 'tab:red'
+    ax2.set_ylabel('Number of tweets in the week', color=color, fontsize=20)
+    df2.groupby([df2['Date'].dt.date])['sentiment'].count().plot.area(alpha=0.2, color=color)
+    ax1.tick_params(labelsize=16)
+    ax2.tick_params(axis='y', labelcolor=color, labelsize=16)
+    ax2.xaxis.set_major_formatter(mdates.DateFormatter("%b-'%y"))
+    plt.title("Average sentiment and opening tweets per day for British Airways (NOTE: follow-up tweets not"
+              " included)", fontsize=20)
+    plt.tight_layout()
+    plt.savefig("Plots\\sentiment_year_BA.png", format='png')
+if 1:
+
+    fig, ax1 = plt.subplots(figsize=(20, 10), dpi=1200)
+    ax1.set_ylabel('Sentiment (0 is negative, 1 is positive)', fontsize=20)
+    df3.groupby([df3['Date'].dt.date])['sentiment'].mean().plot(kind='line')
+    plt.xticks(rotation=45)
+    ax1.axhline(y=df3['sentiment'].mean(), linestyle='dashed', color='tab:blue')
+    ax2 = ax1.twinx()
+    ax1.set_ylim([0.2, 0.8])
+    ax2.set_ylim([0, 5500])
+    color = 'tab:red'
+    ax2.set_ylabel('Number of tweets in the week', color=color, fontsize=20)
+    df3.groupby([df3['Date'].dt.date])['sentiment'].count().plot.area(alpha=0.2, color=color)
+    ax1.tick_params(labelsize=16)
+    ax2.tick_params(axis='y', labelcolor=color, labelsize=16)
+    ax2.xaxis.set_major_formatter(mdates.DateFormatter("%b-'%y"))
+    plt.title("Average sentiment and opening tweets per day for RyanAir (NOTE: follow-up tweets not included)"
+              , fontsize=20)
+    plt.tight_layout()
+    plt.savefig("Plots\\sentiment_year_RyanAir.png", format='png')
+
+
+    fig, ax1 = plt.subplots(figsize=(20, 10), dpi=1200)
+    ax1.set_ylabel('Sentiment (0 is negative, 1 is positive)', fontsize=20)
+    df4.groupby([df4['Date'].dt.date])['sentiment'].mean().plot(kind='line')
+    plt.xticks(rotation=45)
+    ax1.axhline(y=df4['sentiment'].mean(), linestyle='dashed', color='tab:blue')
+    ax2 = ax1.twinx()
+    ax1.set_ylim([0.2, 0.8])
+    ax2.set_ylim([0, 5500])
+    color = 'tab:red'
+    ax2.set_ylabel('Number of tweets per day', color=color, fontsize=20)
+    df4.groupby([df4['Date'].dt.date])['sentiment'].count().plot.area(alpha=0.2, color=color)
+    ax1.tick_params(labelsize=16)
+    ax2.tick_params(axis='y', labelcolor=color, labelsize=16)
+    ax2.xaxis.set_major_formatter(mdates.DateFormatter("%b-'%y"))
+    plt.title("Average sentiment and opening tweets per day for Lufthansa (NOTE: follow-up tweets not included)"
+              , fontsize=20)
+    plt.tight_layout()
+    plt.savefig("Plots\\sentiment_year_Luft.png", format='png')

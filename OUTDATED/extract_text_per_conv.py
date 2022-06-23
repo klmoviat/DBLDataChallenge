@@ -31,11 +31,12 @@ order by CONV_ID asc;""")
 for x in range(1,10):
     lst = cursor.execute("select text from text where CONV_ID = ?", (x,)).fetchall()
     true_lst = [i[0] for i in lst]
+    print(true_lst)
     sent=[]
-    for z in range(0,len(true_lst)):
-        sent_temp=evaluate(true_lst[z])) #evalueer hier de tweet, en sla 1 eindscore op? ofzo?
-        sent=sent.append(sent_temp)
-    average = mean(sent) #calculate average sentiment over conversation
+    # for z in range(0,len(true_lst)):
+    #     sent_temp=evaluate(true_lst[z]) #evalueer hier de tweet, en sla 1 eindscore op? ofzo?
+    #     sent=sent.append(sent_temp)
+    # average = mean(sent) #calculate average sentiment over conversation
 
 cursor.execute("drop table text;")
 cursor.execute("drop table temp_replies;")
