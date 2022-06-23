@@ -206,6 +206,6 @@ def sentiment_year(conn, cursor):
     ax2.xaxis.set_major_formatter(mdates.DateFormatter("%b-'%y"))
     plt.title("Average sentiment and number of tweets per day (NOTE: follow-up tweets not included)"
               , fontsize=20)
-    ax1.legend()
+    ax1.legend(['KLM', 'British Airways', 'RyanAir', 'Lufthansa'])
     plt.tight_layout()
     plt.savefig("Plots\\sentiment_year.jpg", format='jpg')
