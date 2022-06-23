@@ -4,31 +4,62 @@ import numpy as np
 import pandas as pd
 import csv, sqlite3
 from datetime import datetime
+from tkinter import *
+import time
+from tkinter import Tk
+from tkinter.filedialog import askdirectory
+from tkinter import filedialog
+from tkinter import ttk
+from tqdm import tqdm
 
-#AANGEPASTE LOADING: VEEEEEEL SNELLER
-#voeg de kolommen toe aan cols hieronder die je wilt houden
-#extend de doc[cols[i]] array in de for loop daaronder tot het aantal elements
-#in cols
-#50 json files in like 1.2 min ofzo
+path = ''
 
 
-#VOORBEELDEN VOOR CODE:
-#nested ding extracten:
-#doc['entities']['user_mentions']
-#Hiermee krijg je bv: {'screen_name': 'British_Airways', 'name': 'British Airways', 'id': 18332190, 'id_str': '18332190', 'indices': [0, 16]}
-#weet niet hoe hij met meerdere mentions omgaat?
-#plus dit staat natuurlijk ook gwn in de text zelf
+def browse_files():
+    global path
+    path = askdirectory(title='Select Folder where the json files are located')
+    # Change label contents
+    label_file_explorer.configure(text="Path Opened: " + path)
 
-#follower count extracten:
-#doc['user']['followers_count']
-#doc['user']['friends_count']
 
-#potentie: maak meerdere data=[] variables aan, per nested ding, en maak
-#daar andere tabellen van?
-#
+def close_win():
+    root.destroy()
 
-#vul hier de lokatie van je files in: hij pakt alle json files in de map!
-files = glob.glob("D:\\data\\*.json")
+
+# Create the root window
+root = Tk()
+# Set window title
+root.title('Select JSON files location')
+
+# Set window size
+root.geometry("700x300")
+
+# Create a File Explorer label
+label_file_explorer = Label(root,
+                            text="Select the correct folder with the JSON files",
+                            width=100, height=4,
+                            fg="blue")
+
+button_explore = Button(root,
+                        text="Browse Files",
+                        command=browse_files)
+
+button_exit = Button(root,
+                     text="Confirm",
+                     command=close_win)
+
+# Grid method is chosen for placing
+# the widgets at respective positions
+# in a table like structure by
+# specifying rows and columns
+label_file_explorer.grid(column=1, row=1)
+button_explore.grid(column=1, row=2)
+button_exit.grid(column=1, row=3)
+root.attributes('-topmost', 1)
+root.mainloop()
+
+files = glob.glob(path+"\\*.json")
+print(path)
 #cols maakt de kolommen aan die je wilt hebben, vul in wat je wilt i guess
 cols = ['created_at', 'id_str', 'text', 'user_id',
         'in_reply_to_user_id_str','in_reply_to_status_id_str','lang',
@@ -57,14 +88,14 @@ df = pd.DataFrame()
 loop_count = 0
 
 #We moeten nog uitzoeken hoeveel en welke files 1 maand zijn, kan je hieronder invullen
-time = input("Run over full database? y/n ")
-if time == 'n':
+run = input("Run over full database? y/n ")
+if run == 'n':
     files = files[231:279]
 
 
 #pas 'files' aan naar one_month voor 1 maand tabel
-for count, ele in enumerate(files, len(files)):
-    print(ele) #voor debugging: print de file waar hij mee bezig is
+
+for count, ele in enumerate(tqdm(files), len(files)):
     with open(ele, encoding='latin-1') as f: #pakt file voor file
         for line in f:  #gaat line voor line de file langs
             try:
@@ -121,11 +152,6 @@ for count, ele in enumerate(files, len(files)):
                     #conversations.append(conversations_lst)
             else:
                 main=main #niet per se nodig?
-    #df = pd.DataFrame(data=data, columns=cols)     oude junk, is langzamer
-    #df = pd.concat([df, dftemp])                   idem
-    loop_count = loop_count + 1
-    print('loop run')           #bijhouden hoeveel files je al hebt gehad
-    print(loop_count)
 df = pd.DataFrame(data=main, columns=cols)#hier pas maken we een df
 df_user = pd.DataFrame(data=user, columns=user_cols)
 #df_conversations=pd.DataFrame(data=conversations, columns=conversations_cols)
@@ -133,7 +159,6 @@ conn = sqlite3.connect("DataChallenge.sqlite")  #default sqlite3 shit
 cursor = conn.cursor()
 
 #maak er een sql ding van
-
-df.to_sql('main', conn, if_exists='replace', index=False)       #creeer table in je datachallenge.sqlite bestand
+#creeer table in je datachallenge.sqlite bestand
+df.to_sql('main', conn, if_exists='replace', index=False)
 df_user.to_sql('user', conn, if_exists='replace', index=False)
-#df_conversations.to_sql('conversations', conn, if_exists='replace', index=False)

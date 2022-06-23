@@ -18,7 +18,6 @@ def preset_script_full():
     shutil.copy(old_db, filepath)
     conn = sqlite3.connect(filepath)
     cursor = conn.cursor()
-    cursor.executescript(QUERY_DROP)
     month = input("Which month would you like to run ? (Jan, Feb, etc.)\n")
     cursor.execute("create table 'preset_main' as select * from main where strftime('%m', created_at) = ?",
                    (eval(month), ))
@@ -50,6 +49,7 @@ def preset_script_full():
     cursor.execute("alter table preset_Lufthansa rename to Lufthansa")
     cursor.execute("alter table preset_RyanAir rename to RyanAir")
 
-    def_plots.avg_bar_plot(conn, cursor, month)
+    def_plots.avg_bar_plot(conn, cursor)
     def_plots.bar_box_count(conn, cursor)
     def_plots.violin_sentiment(conn, cursor)
+    def_plots.sentiment_year(conn, cursor)

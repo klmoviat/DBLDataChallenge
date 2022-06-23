@@ -2,9 +2,10 @@ from transformers import AutoModelForSequenceClassification
 from transformers import TFAutoModelForSequenceClassification
 from transformers import AutoTokenizer, AutoConfig
 from scipy.special import softmax
-from progressbar import ProgressBar
+from tqdm import tqdm
 import numpy as np
-
+from transformers import logging
+logging.set_verbosity_error()
 
 # Sentiment analysis stuffings
 MODEL = f"cardiffnlp/twitter-roberta-base-sentiment-latest"
@@ -70,22 +71,18 @@ def sentiment_analysis_nl(text1, text2, conv_id):
 
 def sentiment_compare(before, after, conv_id):
     all_scores = []
-    pbar = ProgressBar()
-    for x in pbar(range(len(before))):
+    for x in tqdm(range(len(before))):
         score = sentiment_analysis(before[x], after[x], conv_id[x])
         all_scores.append(score)
-    pbar.finish()
     return all_scores
 
 
 def sentiment_compare_nl(before, after, conv_id):
     all_scores = []
     # Sentiment analysis stuffings
-    pbar = ProgressBar()
-    for x in pbar(range(len(before))):
+    for x in tqdm(range(len(before))):
         score = sentiment_analysis_nl(before[x], after[x], conv_id[x])
         all_scores.append(score)
-    pbar.finish()
     return all_scores
 
 
