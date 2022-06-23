@@ -21,7 +21,7 @@ filename = ''
 
 
 # Create UI for selecting database location
-def database_location():
+def database_location(prompt):
     def browse_files():
         global filename
         filename = fd.askopenfilename()
@@ -33,7 +33,7 @@ def database_location():
     # Create the root window
     root = Tk()
     # Set window title
-    root.title('Select JSON files location')
+    root.title(prompt)
 
     # Set window size
     root.geometry("700x300")
@@ -117,7 +117,7 @@ while 1:
         break
     elif toggle == 's':
         # specificeer hieronde waar ALL_DATA.sqlite staat
-        database_location()
+        database_location('Select the database you want to work on')
         conn = sqlite3.connect(filename)
         cursor = conn.cursor()
         print('DO NOT FORGET TO FIRST DROP COMPANY TABLES!')
@@ -127,7 +127,8 @@ while 1:
         full_program()
         break
     elif toggle == 'p':
-        Preset_script.preset_script_full()
+        database_location('Select the full database')
+        Preset_script.preset_script_full(filename)
         print("✌(◕‿-)✌")
         break
     else:

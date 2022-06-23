@@ -10,12 +10,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def preset_script_full():
-    filepath = "D:\\EXPORT\\PRESET.sqlite"
+def preset_script_full(og_db):
+    top_dir = os.path.dirname(og_db)
+    filepath = top_dir + "\\PRESET.sqlite"
     if os.path.exists(filepath):
         os.remove(filepath)
-    old_db = "D:\\EXPORT\\ALL_DATA.sqlite"
-    shutil.copy(old_db, filepath)
+    shutil.copy(og_db, filepath)
     conn = sqlite3.connect(filepath)
     cursor = conn.cursor()
     month = input("Which month would you like to run ? (Jan, Feb, etc.)\n")
@@ -24,16 +24,20 @@ def preset_script_full():
     # cursor.execute("create table 'preset_replies' as select * from main.replies"
     #                " inner join main on KLM.head = id_str where strftime('%m', created_at) = ?",
     #                (eval(month),))
-    cursor.execute("create table 'preset_KLM' as select * from KLM"
+    cursor.execute("create table 'preset_KLM' as select head, head_text, tail_id, tail_text, "
+                   "depth, CONV_ID, head_sentiment, tail_sentiment, delta_sentiment from KLM"
                    " inner join main on KLM.head = id_str where strftime('%m', created_at) = ?",
                    (eval(month),))
-    cursor.execute("create table 'preset_British_Airways' as select * from British_Airways"
+    cursor.execute("create table 'preset_British_Airways' as select head, head_text, tail_id, tail_text, "
+                   "depth, CONV_ID, head_sentiment, tail_sentiment, delta_sentiment from British_Airways"
                    " inner join main on head = id_str where strftime('%m', created_at) = ?",
                    (eval(month),))
-    cursor.execute("create table 'preset_Lufthansa' as select * from Lufthansa"
+    cursor.execute("create table 'preset_Lufthansa' as select head, head_text, tail_id, tail_text, "
+                   "depth, CONV_ID, head_sentiment, tail_sentiment, delta_sentiment from Lufthansa"
                    " inner join main on head = id_str where strftime('%m', created_at) = ?",
                    (eval(month),))
-    cursor.execute("create table 'preset_RyanAir' as select * from Ryanair"
+    cursor.execute("create table 'preset_RyanAir' as select head, head_text, tail_id, tail_text, "
+                   "depth, CONV_ID, head_sentiment, tail_sentiment, delta_sentiment from Ryanair"
                    " inner join main on head = id_str where strftime('%m', created_at) = ?",
                    (eval(month),))
     cursor.execute("drop table main")
