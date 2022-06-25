@@ -124,7 +124,8 @@ mention either KLM, British Airways, Lufthansa or Ryanair. To do this, type
 ALL_DATA.sqlite WHICH HAS THIS PRELOADED
 
 Once KLM, British_Airways, Lufthansa and Ryanair have been fully loaded in, 
-the plots can be made by selecting 'p'. 
+the plots can be made by selecting 'p'. The plots will be saved in the
+'Plots' folder that is included in the zip.
 
 
 
