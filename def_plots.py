@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import seaborn as sns
-import sqlite3
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
@@ -180,9 +179,9 @@ def sentiment_year(conn, cursor):
     df4['created_at'] = pd.to_datetime(df4['created_at'])
     df4 = df4.rename(columns={"created_at": "Date"})
 
-    fig, ax1 = plt.subplots(figsize=(60, 10))
+    fig, ax1 = plt.subplots(figsize=(60, 10), dpi=400)
     ax1.set_xlabel('Date')
-    ax1.set_ylabel('Sentiment (0 is negative, 1 is positive)', fontsize=20)
+    ax1.set_ylabel('Sentiment (0 = neg, 1 = pos)', fontsize=34)
 
     df1.groupby([df1['Date'].dt.date])['sentiment'].mean().plot(kind='line', color='darkorange')
     df2.groupby([df2['Date'].dt.date])['sentiment'].mean().plot(kind='line', color='tab:blue')
@@ -196,16 +195,18 @@ def sentiment_year(conn, cursor):
     ax2 = ax1.twinx()
     ax1.set_ylim([0.2, 0.8])
     ax2.set_ylim([0, 5500])
-    ax2.set_ylabel('Number of tweets in the week', color='tab:red', fontsize=20)
+    ax2.set_ylabel('Number of tweets in the week', color='tab:red', fontsize=34)
     df1.groupby([df1['Date'].dt.date])['sentiment'].count().plot.area(alpha=0.2, color='darkorange')
     df2.groupby([df2['Date'].dt.date])['sentiment'].count().plot.area(alpha=0.2, color='tab:blue')
     df3.groupby([df3['Date'].dt.date])['sentiment'].count().plot.area(alpha=0.2, color='gold')
     df4.groupby([df4['Date'].dt.date])['sentiment'].count().plot.area(alpha=0.2, color='darkgreen')
-    ax1.tick_params(labelsize=16)
-    ax2.tick_params(axis='y', labelcolor='tab:red', labelsize=16)
+    ax1.tick_params(labelsize=30)
+    ax2.tick_params(axis='y', labelcolor='tab:red', labelsize=30)
     ax2.xaxis.set_major_formatter(mdates.DateFormatter("%b-'%y"))
     plt.title("Average sentiment and number of tweets per day (NOTE: follow-up tweets not included)"
-              , fontsize=20)
-    ax1.legend(['KLM', 'British Airways', 'RyanAir', 'Lufthansa'])
+              , fontsize=38)
+    ax1.legend(['KLM', 'British Airways', 'RyanAir', 'Lufthansa'], fontsize=34, loc='upper left')
+    ax1.set_xlabel('Date', fontsize=34)
+    ax2.set_xlabel('Date', fontsize=34)
     plt.tight_layout()
     plt.savefig("Plots\\sentiment_year.jpg", format='jpg')
