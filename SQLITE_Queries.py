@@ -276,4 +276,64 @@ QUERY_DROP = """
     drop table if exists temp_head_tail;
 """
 
+QUERY_KLM_TWEETS = """
+    DROP TABLE IF EXISTS new_table;
+    PRAGMA foreign_keys=off;
+    BEGIN TRANSACTION;
+    CREATE TABLE IF NOT EXISTS new_table( 
+       KLM, 
+       BA, 
+       LH, 
+       RA
+    );
+    INSERT INTO new_table(KLM)
+        SELECT id_str 
+        FROM main
+        WHERE user_id = 56377143;
+    INSERT INTO new_table(BA)
+        SELECT id_str
+        FROM main
+        WHERE user_id = 18332190;
+    INSERT INTO new_table(LH)
+        SELECT id_str 
+        FROM main
+        WHERE user_id = 124476322;
+    INSERT INTO new_table(RA)
+        SELECT id_str 
+        FROM main
+        WHERE user_id = 1542862735;
+    COMMIT;
+    PRAGMA foreign_keys=on;
+"""
 
+QUERY_RESPONSE_TIME = """
+    DROP TABLE IF EXISTS response_times;
+    
+    PRAGMA foreign_keys=off;
+    BEGIN TRANSACTION;
+    CREATE TABLE IF NOT EXISTS response_times( 
+       KLM, 
+       BA, 
+       LH, 
+       RA
+    );
+    INSERT INTO response_times(KLM)
+        SELECT replies.response_time
+        FROM replies, new_table
+        WHERE new_table.KLM = replies.id_str;
+    INSERT INTO response_times(BA)
+        SELECT replies.response_time
+        FROM replies, new_table
+        WHERE new_table.BA = replies.id_str;
+    INSERT INTO response_times(LH)
+        SELECT replies.response_time
+        FROM replies, new_table
+        WHERE new_table.LH = replies.id_str;
+    INSERT INTO response_times(RA)
+        SELECT replies.response_time
+        FROM replies, new_table
+        WHERE new_table.RA = replies.id_str;
+    COMMIT;
+    PRAGMA foreign_keys=on;
+    DROP TABLE IF EXISTS new_table;
+"""
