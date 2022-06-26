@@ -92,6 +92,7 @@ def full_program():
             violin_sentiment(conn, cursor)
             bar_box_count(conn, cursor)
             sentiment_year(conn, cursor)
+            med_response(cursor, conn)
         elif choice == 'q':
             print("✌(◕‿-)✌")
             return

@@ -57,3 +57,4 @@ def preset_script_full(og_db):
     def_plots.bar_box_count(conn, cursor)
     def_plots.violin_sentiment(conn, cursor)
     def_plots.sentiment_year(conn, cursor)
+    def_plots.med_response(cursor, conn)

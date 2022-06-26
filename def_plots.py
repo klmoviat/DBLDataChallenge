@@ -210,3 +210,26 @@ def sentiment_year(conn, cursor):
     ax2.set_xlabel('Date', fontsize=34)
     plt.tight_layout()
     plt.savefig("Plots\\sentiment_year.jpg", format='jpg')
+
+
+def med_response(cursor, conn):
+    df1 = pd.read_sql(
+        "Select response_time from main.replies "
+        "inner join main m on m.id_str = replies.id_str where m.user_id = '18332190'",
+        conn)
+    df2 = pd.read_sql(
+        "Select response_time from main.replies "
+        "inner join main m on m.id_str = replies.id_str where m.user_id = '18332190'",
+        conn)
+    df3 = pd.read_sql(
+        "Select response_time from main.replies "
+        "inner join main m on m.id_str = replies.id_str where m.user_id = '1542862735'",
+        conn)
+    df4 = pd.read_sql(
+        "Select response_time from main.replies "
+        "inner join main m on m.id_str = replies.id_str where m.user_id = '124476322'",
+        conn)
+    print("Response time KLM: " + str(df1['response_time'].median()) + "minutes.\n"
+          "Response time British_Airways: " + str(df2['response_time'].median()) + "minutes.\n"
+          "Response time RyanAir: " + str(df3['response_time'].median()) + "minutes.\n"
+          "Response time Lufthansa: " + str(df4['response_time'].median()) + "minutes.\n")
